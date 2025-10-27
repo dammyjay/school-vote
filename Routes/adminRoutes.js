@@ -108,7 +108,10 @@ router.get("/results", adminController.viewResults);
 // Logout
 router.get("/logout", adminAuth, adminController.adminLogout);
 
-router.post("/toggle-voting", adminController.toggleVoting);
+// Admin settings page
+router.get("/settings", adminController.getSettings);
 
+// Toggle voting open/close
+router.post("/toggle-voting", adminController.toggleVoting);
 
 module.exports = router;

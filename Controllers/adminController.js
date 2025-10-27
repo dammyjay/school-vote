@@ -256,13 +256,23 @@ exports.viewResults = async (req, res) => {
 // Get current setting
 exports.getSettings = async (req, res) => {
   try {
-    const setting = await pool.query("SELECT * FROM settings LIMIT 1");
-    res.render("admin/settings", { setting: setting.rows[0] });
+    const result = await pool.query("SELECT * FROM settings LIMIT 1");
+    let setting = result.rows[0];
+
+    // If no record yet, create default one
+    if (!setting) {
+      await pool.query("INSERT INTO settings (voting_open) VALUES (false)");
+      const newResult = await pool.query("SELECT * FROM settings LIMIT 1");
+      setting = newResult.rows[0];
+    }
+
+    res.render("admin/settings", { setting });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error loading settings");
   }
 };
+
 
 // Toggle voting open/close
 exports.toggleVoting = async (req, res) => {

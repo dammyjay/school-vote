@@ -3,6 +3,103 @@
 <head>
   <title>Vote Page</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .vote-container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .student-info {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .category-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .category-card h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      border: 2px solid transparent;
+      width: 150px;
+    }
+
+    .card:hover {
+      border-color: #007bff;
+      background-color: #eef6ff;
+    }
+
+    .card input {
+      display: none;
+    }
+
+    .card input:checked + .candidate-photo {
+      border: 3px solid #007bff;
+    }
+
+    .candidate-photo img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .candidate-name {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      margin: 30px auto;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .vote-success {
+      text-align: center;
+      margin-top: 40px;
+      background: #e8fce8;
+      border: 1px solid #c5f0c5;
+      padding: 20px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
   <%- include('../partials/studentHeader') %>
@@ -18,18 +115,17 @@
         <h3>✅ You have already voted. Thank you for participating!</h3>
       </div>
     <% } else { %>
-      <% categories.forEach(category => { %>
-        <div class="category-card">
-          <h3><%= category.name %></h3>
-          <form action="/vote/submit" method="POST" class="vote-form">
-            <input type="hidden" name="category_id" value="<%= category.id %>">
+
+      <form action="/vote/submit" method="POST" id="mainVoteForm">
+        <% categories.forEach(category => { %>
+          <div class="category-card">
+            <h3><%= category.name %></h3>
+            <input type="hidden" name="category_ids" value="<%= category.id %>">
 
             <div class="card-container">
-              <% candidates
-                .filter(c => c.category_id === category.id)
-                .forEach(c => { %>
+              <% candidates.filter(c => c.category_id === category.id).forEach(c => { %>
                 <label class="card">
-                  <input type="radio" name="candidate_id" value="<%= c.id %>" required>
+                  <input type="radio" name="candidate_<%= category.id %>" value="<%= c.id %>">
                   <div class="candidate-photo">
                     <img src="<%= c.photo_url || '/images/default.png' %>" alt="<%= c.name %>">
                   </div>
@@ -37,12 +133,27 @@
                 </label>
               <% }) %>
             </div>
+          </div>
+        <% }) %>
 
-            <button type="submit" class="btn-primary vote-btn">Submit Vote</button>
-          </form>
-        </div>
-      <% }) %>
+        <button type="submit" class="btn-primary">Submit All Votes</button>
+      </form>
+
     <% } %>
   </div>
+
+  <script>
+    document.getElementById("mainVoteForm")?.addEventListener("submit", function(e) {
+      const categoryIds = Array.from(document.querySelectorAll('input[name="category_ids"]')).map(i => i.value);
+      for (let id of categoryIds) {
+        const selected = document.querySelector(`input[name="candidate_${id}"]:checked`);
+        if (!selected) {
+          alert(`Please select a candidate for all categories before submitting.`);
+          e.preventDefault();
+          return;
+        }
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Student Login</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <h2>Student Login</h2>
+  <head>
+    <title>Student Login</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <h2>Student Login</h2>
 
-  <form action="/student/login" method="POST">
-    <input type="text" name="firstname" placeholder="First Name" required><br>
-    <input type="text" name="lastname" placeholder="Last Name" required><br>
-    <input type="text" name="voting_id" placeholder="Voting ID" required><br>
-    <button type="submit">Login</button>
-  </form>
+    <form action="/student/login" method="POST">
+      <input
+        type="text"
+        name="firstname"
+        placeholder="First Name"
+        required
+      /><br />
+      <input
+        type="text"
+        name="lastname"
+        placeholder="Last Name"
+        required
+      /><br />
+      <input
+        type="text"
+        name="voting_id"
+        placeholder="Voting ID"
+        required
+      /><br />
+      <button type="submit">Login</button>
+    </form>
     <div class="main-header">
-  <a style="color: white;" href="/admin/login">Login as Admin</a>
-  </div>
-</body>
+      <a style="color: white" href="/admin/login">Login as Admin</a>
+    </div>
+  </body>
 </html>

@@ -4,6 +4,7 @@
   <title>Voting Results</title>
   <link rel="stylesheet" href="/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <style>
     .results-header {
       display: flex;
@@ -12,12 +13,10 @@
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
     .results-header label {
       font-weight: bold;
       margin-right: 10px;
     }
-
     #categorySelect {
       padding: 8px 12px;
       border-radius: 6px;
@@ -26,15 +25,12 @@
       background-color: #fff;
       transition: 0.3s;
     }
-
     #categorySelect:hover {
       border-color: #999;
     }
-
     #resultContainer {
       margin-top: 20px;
     }
-
     .chart-container {
       margin-top: 20px;
       background: #fff;
@@ -42,7 +38,6 @@
       padding: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     .category-card {
       margin-bottom: 40px;
       background: #fff;
@@ -50,12 +45,10 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     .chart-toggle {
       text-align: right;
       margin-bottom: 10px;
     }
-
     .toggle-btn {
       padding: 6px 12px;
       border: none;
@@ -66,27 +59,22 @@
       font-size: 14px;
       transition: 0.3s;
     }
-
     .toggle-btn:hover {
       background-color: #004a99;
     }
-
     .data-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-
     .data-table th, .data-table td {
       border: 1px solid #ddd;
       padding: 10px;
       text-align: center;
     }
-
     .data-table th {
       background-color: #f9f9f9;
     }
-
     .no-data {
       text-align: center;
       margin-top: 40px;
@@ -101,7 +89,6 @@
   <div class="admin-container">
     <div class="results-header">
       <h2>Voting Results</h2>
-
       <div>
         <label for="categorySelect">Select Category:</label>
         <select id="categorySelect">
@@ -112,7 +99,6 @@
         </select>
       </div>
     </div>
-
     <div id="resultContainer"></div>
   </div>
 
@@ -127,26 +113,55 @@
       charts = [];
     }
 
-    // 🔁 Create Chart Function
+    // ✅ Create Chart Function with Datalabels
     function createChart(ctx, type, labels, data, title) {
-      return new Chart(ctx, {
-        type,
-        data: {
-          labels,
-          datasets: [{
-            label: title,
-            data,
-            backgroundColor: [
-              '#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2',
-              '#20c997', '#fd7e14', '#6f42c1'
-            ],
-          }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-      });
-    }
+  // Ensure all data values are numbers
+  const numericData = data.map(d => Number(d) || 0);
 
-    // 🟢 Render All Categories (Each with Toggle)
+  return new Chart(ctx, {
+    type,
+    data: {
+      labels,
+      datasets: [{
+        label: title,
+        data: numericData,
+        backgroundColor: [
+          '#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2',
+          '#20c997', '#fd7e14', '#6f42c1'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: title },
+        datalabels: {
+          color: '#FFFFFF',
+          font: { weight: 'bold', size: 25 },
+          formatter: (value, context) => {
+            const dataset = context.chart.data.datasets[0].data;
+            const total = dataset.reduce((sum, val) => sum + val, 0);
+
+            // Prevent division by zero
+            if (total === 0) return "0%";
+
+            if (type === 'pie') {
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${percentage}%`;
+            }
+            return value; // show actual count for bar chart
+          }
+        }
+      },
+      scales: type === 'bar' ? { y: { beginAtZero: true } } : {}
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+
+    // 🔁 Render All Categories
     function renderAll() {
       clearCharts();
       container.innerHTML = results.map((category, index) => `
@@ -174,7 +189,6 @@
         </div>
       `).join('');
 
-      // Create each chart
       results.forEach((category, index) => {
         const ctx = document.getElementById(`chart-${index}`).getContext("2d");
         const labels = category.candidates.map(c => c.name);
@@ -183,7 +197,6 @@
         let chart = createChart(ctx, 'bar', labels, data, `${category.category} Votes`);
         charts.push(chart);
 
-        // Toggle button listener
         const toggleBtn = document.getElementById(`toggle-${index}`);
         toggleBtn.addEventListener("click", () => {
           const currentType = toggleBtn.dataset.type;
@@ -234,7 +247,6 @@
       let chart = createChart(ctx, 'bar', labels, data, `${category.category} Votes`);
       charts.push(chart);
 
-      // Toggle chart view
       const toggleBtn = document.getElementById("toggle-single");
       toggleBtn.addEventListener("click", () => {
         const currentType = toggleBtn.dataset.type;

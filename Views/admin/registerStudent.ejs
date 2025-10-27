@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register Student</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/adminHeader') %>
+
+  <main class="admin-container">
+    <div class="header-bar">
+      <h2>Registered Students</h2>
+      <button id="openModal" class="btn-primary">+ Register New Student</button>
+    </div>
+
+    <!-- Student Table -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Voting ID</th>
+          <th>Has Voted?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (students && students.length > 0) { %>
+          <% students.forEach(student => { %>
+            <tr>
+              <td><%= student.id %></td>
+              <td><%= student.firstname %></td>
+              <td><%= student.lastname %></td>
+              <td><%= student.voting_id %></td>
+              <td><%= student.has_voted ? 'Yes' : 'No' %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="no-data">No students registered yet.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Modal Form -->
+  <!-- <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h3>Register New Student</h3>
+      <form action="/admin/register-student" method="POST" class="form-container">
+        <label for="firstname">First Name</label>
+        <input type="text" name="firstname" required>
+
+        <label for="lastname">Last Name</label>
+        <input type="text" name="lastname" required>
+
+        <button type="submit" class="btn-primary">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('registerModal');
+    const openBtn = document.getElementById('openModal');
+    const closeBtn = document.getElementById('closeModal');
+
+    openBtn.onclick = () => modal.style.display = 'block';
+    closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => {
+      if (event.target === modal) modal.style.display = 'none';
+    };
+  </script> -->
+
+<!-- Modal Form -->
+<div id="registerModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" id="closeModal">&times;</span>
+    <h3>Register New Students</h3>
+
+    <form action="/admin/register-student" method="POST" class="form-container" id="multiStudentForm">
+      <div id="studentFields">
+        <div class="student-group">
+          <label>First Name</label>
+          <input type="text" name="firstname[]" required>
+
+          <label>Last Name</label>
+          <input type="text" name="lastname[]" required>
+        </div>
+      </div>
+
+      <button type="button" id="addMore" class="btn-primary" style="background:#28a745;">+ Add Another</button>
+      <button type="submit" class="btn-primary">Register All</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('registerModal');
+  const openBtn = document.getElementById('openModal');
+  const closeBtn = document.getElementById('closeModal');
+  const addMoreBtn = document.getElementById('addMore');
+  const studentFields = document.getElementById('studentFields');
+
+  openBtn.onclick = () => modal.style.display = 'block';
+  closeBtn.onclick = () => modal.style.display = 'none';
+  window.onclick = (event) => {
+    if (event.target === modal) modal.style.display = 'none';
+  };
+
+  // Add new student fields dynamically
+  addMoreBtn.onclick = () => {
+    const newGroup = document.createElement('div');
+    newGroup.classList.add('student-group');
+    newGroup.innerHTML = `
+      <label>First Name</label>
+      <input type="text" name="firstname[]" required>
+      <label>Last Name</label>
+      <input type="text" name="lastname[]" required>
+      <button type="button" class="remove-btn" style="background:#dc3545; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">Remove</button>
+    `;
+    studentFields.appendChild(newGroup);
+
+    // Remove button functionality
+    newGroup.querySelector('.remove-btn').onclick = () => newGroup.remove();
+  };
+</script>
+
+
+
+</body>
+</html>

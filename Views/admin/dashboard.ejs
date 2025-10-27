@@ -1,0 +1,57 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+      <%- include('../partials/adminHeader') %>
+  <h2>Admin Dashboard</h2>
+  <ul>
+    <li><a href="/admin/register-student">Register Student</a></li>
+    <li><a href="/admin/create-category">Create Category</a></li>
+    <li><a href="/admin/results">View Results</a></li>
+  </ul>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/adminHeader') %>
+
+  <div class="dashboard-container">
+    <h2>Welcome to the Admin Dashboard</h2>
+    <p class="subtitle">Manage your school voting system easily from here.</p>
+
+    <div class="dashboard-cards">
+      <div class="card">
+        <img src="/images/reg.jpg" alt="Register Student" class="card-icon">
+        <h3>Register Students</h3>
+        <p>Add students and generate unique voting IDs for them.</p>
+        <a href="/admin/register-student" class="btn">Go</a>
+      </div>
+
+      <div class="card">
+        <img src="/images/cate.jpg" alt="Create Category" class="card-icon">
+        <h3>Create Categories</h3>
+        <p>Set up new voting categories and manage candidates.</p>
+        <a href="/admin/create-category" class="btn">Go</a>
+      </div>
+
+      <div class="card">
+        <img src="/images/result.jpg" alt="View Results" class="card-icon">
+        <h3>View Results</h3>
+        <p>Check live updates and export final voting results.</p>
+        <a href="/admin/results" class="btn">Go</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

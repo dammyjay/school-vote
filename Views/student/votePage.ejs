@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vote Page</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/studentHeader') %>
+
+  <div class="vote-container">
+    <div class="student-info">
+      <h2>Welcome, <%= student.firstname %> <%= student.lastname %></h2>
+      <p class="voting-id">Voting ID: <strong><%= student.voting_id %></strong></p>
+    </div>
+
+    <% if (student.has_voted) { %>
+      <div class="vote-success">
+        <h3>✅ You have already voted. Thank you for participating!</h3>
+      </div>
+    <% } else { %>
+      <% categories.forEach(category => { %>
+        <div class="category-card">
+          <h3><%= category.name %></h3>
+          <form action="/vote/submit" method="POST" class="vote-form">
+            <input type="hidden" name="category_id" value="<%= category.id %>">
+
+            <div class="card-container">
+              <% candidates
+                .filter(c => c.category_id === category.id)
+                .forEach(c => { %>
+                <label class="card">
+                  <input type="radio" name="candidate_id" value="<%= c.id %>" required>
+                  <div class="candidate-photo">
+                    <img src="<%= c.photo_url || '/images/default.png' %>" alt="<%= c.name %>">
+                  </div>
+                  <div class="candidate-name"><%= c.name %></div>
+                </label>
+              <% }) %>
+            </div>
+
+            <button type="submit" class="btn-primary vote-btn">Submit Vote</button>
+          </form>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</body>
+</html>

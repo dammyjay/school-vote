@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Candidates — <%= category.name %></title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('../partials/adminHeader') %>
+
+    <main class="admin-container">
+      <div class="header-bar">
+        <h2>Candidates in <%= category.name %></h2>
+        <button id="openModal" class="btn-primary">+ Add Candidates</button>
+      </div>
+
+      <!-- Candidate Cards -->
+      <div class="card-container">
+        <% if (candidates.length > 0) { %> <% candidates.forEach(c => { %>
+        <div class="card">
+          <% if (c.photo_url) { %>
+          <img src="<%= c.photo_url %>" alt="<%= c.name %>" />
+          <% } %>
+          <h3><%= c.name %></h3>
+
+          <button
+            class="edit-btn"
+            onclick="openEditModal('<%= c.id %>', '<%= c.name %>', '<%= c.photo_url %>', '<%= category.id %>')"
+          >
+            Edit
+          </button>
+          <form
+            action="/admin/delete-candidate/<%= c.id %>/<%= category.id %>"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              type="submit"
+              class="delete-btn"
+              onclick="return confirm('Delete this candidate?')"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
+        <% }) %> <% } else { %>
+        <p class="no-data">No candidates added yet.</p>
+        <% } %>
+      </div>
+
+      <a href="/admin/create-category" class="back-link"
+        >← Back to Categories</a
+      >
+    </main>
+
+    <!-- 🟢 Add Multiple Candidates Modal -->
+    <div id="candidateModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h3>Add Candidates</h3>
+        <form
+          id="multiCandidateForm"
+          action="/admin/add-multiple-candidates"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input type="hidden" name="category_id" value="<%= category.id %>" />
+
+          <div id="candidateFields">
+            <div class="candidate-entry">
+              <input
+                type="text"
+                name="name"
+                placeholder="Candidate Name"
+                required
+              />
+              <input type="file" name="photo" accept="image/*" required />
+            </div>
+          </div>
+
+          <button type="button" id="addMore" class="btn-secondary">
+            + Add Another Candidate
+          </button>
+          <button type="submit" class="btn-primary">Save All</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 🔵 Edit Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h3>Edit Candidate</h3>
+        <form
+          id="editForm"
+          action=""
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input type="hidden" name="existing_photo" id="existingPhoto" />
+          <input type="hidden" name="category_id" id="categoryId" />
+          <label>Name:</label><br />
+          <input type="text" name="name" id="editName" required /><br /><br />
+          <label>Change Photo (optional):</label><br />
+          <input type="file" name="photo" accept="image/*" /><br /><br />
+          <button type="submit" class="btn-primary">Update</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Open/Close Add Modal
+      const candidateModal = document.getElementById("candidateModal");
+      const openBtn = document.getElementById("openModal");
+      const closeBtn = document.getElementById("closeModal");
+
+      openBtn.onclick = () => (candidateModal.style.display = "flex");
+      closeBtn.onclick = () => (candidateModal.style.display = "none");
+      window.onclick = (e) => {
+        if (e.target === candidateModal) candidateModal.style.display = "none";
+      };
+
+      // Add More Fields
+      document.getElementById("addMore").addEventListener("click", () => {
+        const container = document.getElementById("candidateFields");
+        const div = document.createElement("div");
+        div.classList.add("candidate-entry");
+        div.innerHTML = `
+      <input type="text" name="name" placeholder="Candidate Name" required>
+      <input type="file" name="photo" accept="image/*" required>
+    `;
+        container.appendChild(div);
+      });
+      // Edit Modal Logic
+      const editModal = document.getElementById("editModal");
+      const editForm = document.getElementById("editForm");
+
+      function openEditModal(id, name, photo, categoryId) {
+        editModal.style.display = "flex";
+        document.getElementById("editName").value = name;
+        document.getElementById("existingPhoto").value = photo;
+        document.getElementById("categoryId").value = categoryId;
+        editForm.action = `/admin/edit-candidate/${id}`;
+      }
+
+      function closeEditModal() {
+        editModal.style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        if (event.target == editModal) closeEditModal();
+      };
+    </script>
+  </body>
+</html>

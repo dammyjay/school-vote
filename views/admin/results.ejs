@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Voting Results</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .results-header label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    #categorySelect {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      background-color: #fff;
+      transition: 0.3s;
+    }
+
+    #categorySelect:hover {
+      border-color: #999;
+    }
+
+    #resultContainer {
+      margin-top: 20px;
+    }
+
+    .chart-container {
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .category-card {
+      margin-bottom: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .chart-toggle {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .toggle-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #0066cc;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .toggle-btn:hover {
+      background-color: #004a99;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .data-table th, .data-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .data-table th {
+      background-color: #f9f9f9;
+    }
+
+    .no-data {
+      text-align: center;
+      margin-top: 40px;
+      color: #777;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/adminHeader') %>
+
+  <div class="admin-container">
+    <div class="results-header">
+      <h2>Voting Results</h2>
+
+      <div>
+        <label for="categorySelect">Select Category:</label>
+        <select id="categorySelect">
+          <option value="all">All Categories</option>
+          <% results.forEach(r => { %>
+            <option value="<%= r.category %>"><%= r.category %></option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
+
+    <div id="resultContainer"></div>
+  </div>
+
+  <script>
+    const results = <%- JSON.stringify(results) %>;
+    const select = document.getElementById("categorySelect");
+    const container = document.getElementById("resultContainer");
+    let charts = [];
+
+    function clearCharts() {
+      charts.forEach(ch => ch.destroy());
+      charts = [];
+    }
+
+    // 🔁 Create Chart Function
+    function createChart(ctx, type, labels, data, title) {
+      return new Chart(ctx, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label: title,
+            data,
+            backgroundColor: [
+              '#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2',
+              '#20c997', '#fd7e14', '#6f42c1'
+            ],
+          }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    // 🟢 Render All Categories (Each with Toggle)
+    function renderAll() {
+      clearCharts();
+      container.innerHTML = results.map((category, index) => `
+        <div class="category-card">
+          <div class="chart-toggle">
+            <button class="toggle-btn" id="toggle-${index}" data-type="bar">Switch to Pie</button>
+          </div>
+          <h3>${category.category}</h3>
+          <table class="data-table">
+            <thead><tr><th>Photo</th><th>Candidate</th><th>Votes</th></tr></thead>
+            <tbody>
+              ${category.candidates.map(c => `
+                <tr>
+                  <td><img src="${c.photo_url}" width="60" height="60" style="border-radius:50%"></td>
+                  <td>${c.name}</td>
+                  <td>${c.vote_count}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="chart-container">
+            <canvas id="chart-${index}" width="400" height="200"></canvas>
+          </div>
+        </div>
+      `).join('');
+
+      // Create each chart
+      results.forEach((category, index) => {
+        const ctx = document.getElementById(`chart-${index}`).getContext("2d");
+        const labels = category.candidates.map(c => c.name);
+        const data = category.candidates.map(c => c.vote_count);
+
+        let chart = createChart(ctx, 'bar', labels, data, `${category.category} Votes`);
+        charts.push(chart);
+
+        // Toggle button listener
+        const toggleBtn = document.getElementById(`toggle-${index}`);
+        toggleBtn.addEventListener("click", () => {
+          const currentType = toggleBtn.dataset.type;
+          chart.destroy();
+          const newType = currentType === "bar" ? "pie" : "bar";
+          chart = createChart(ctx, newType, labels, data, `${category.category} Votes`);
+          charts[index] = chart;
+          toggleBtn.dataset.type = newType;
+          toggleBtn.textContent = newType === "bar" ? "Switch to Pie" : "Switch to Bar";
+        });
+      });
+    }
+
+    // 🔵 Show Single Category
+    function showCategory(categoryName) {
+      if (categoryName === "all") return renderAll();
+      clearCharts();
+      const category = results.find(r => r.category === categoryName);
+      if (!category) return;
+
+      container.innerHTML = `
+        <div class="category-card">
+          <div class="chart-toggle">
+            <button class="toggle-btn" id="toggle-single" data-type="bar">Switch to Pie</button>
+          </div>
+          <h3>${category.category}</h3>
+          <table class="data-table">
+            <thead><tr><th>Photo</th><th>Candidate</th><th>Votes</th></tr></thead>
+            <tbody>
+              ${category.candidates.map(c => `
+                <tr>
+                  <td><img src="${c.photo_url}" width="60" height="60" style="border-radius:50%"></td>
+                  <td>${c.name}</td>
+                  <td>${c.vote_count}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+
+          <div class="chart-container">
+            <canvas id="chart-single" width="400" height="200"></canvas>
+          </div>
+        </div>
+      `;
+
+      const ctx = document.getElementById("chart-single").getContext("2d");
+      const labels = category.candidates.map(c => c.name);
+      const data = category.candidates.map(c => c.vote_count);
+      let chart = createChart(ctx, 'bar', labels, data, `${category.category} Votes`);
+      charts.push(chart);
+
+      // Toggle chart view
+      const toggleBtn = document.getElementById("toggle-single");
+      toggleBtn.addEventListener("click", () => {
+        const currentType = toggleBtn.dataset.type;
+        chart.destroy();
+        const newType = currentType === "bar" ? "pie" : "bar";
+        chart = createChart(ctx, newType, labels, data, `${category.category} Votes`);
+        charts[0] = chart;
+        toggleBtn.dataset.type = newType;
+        toggleBtn.textContent = newType === "bar" ? "Switch to Pie" : "Switch to Bar";
+      });
+    }
+
+    select.addEventListener("change", e => showCategory(e.target.value));
+    showCategory(select.value);
+  </script>
+</body>
+</html>

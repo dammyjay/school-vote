@@ -5,7 +5,10 @@ exports.vote = async (req, res) => {
   const student = req.session.student;
 
   if (!student) return res.redirect("/student/login");
-
+ const setting = await pool.query("SELECT * FROM settings LIMIT 1");
+ if (!setting.rows[0].voting_open) {
+   return res.send("Voting has been closed by the admin.");
+ }
   const alreadyVoted = await pool.query(
     "SELECT * FROM votes WHERE student_id=$1 AND category_id=$2",
     [student.id, category_id]

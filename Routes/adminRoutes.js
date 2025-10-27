@@ -90,9 +90,6 @@ router.post(
   adminController.addMultipleCandidates
 );
 
-
-
-
 router.post(
   "/edit-candidate/:id",
   adminAuth,
@@ -104,7 +101,14 @@ router.get(
   adminAuth,
   adminController.deleteCandidate
 );
+
+// Results page route
+router.get("/results", adminController.viewResults);
+
 // Logout
 router.get("/logout", adminAuth, adminController.adminLogout);
+
+router.post("/toggle-voting", adminController.toggleVoting);
+
 
 module.exports = router;

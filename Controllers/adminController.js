@@ -140,8 +140,6 @@ exports.addMultipleCandidates = async (req, res) => {
 };
 
 
-
-
 // 🟠 View Candidates in a Category
 exports.getCandidates = async (req, res) => {
   const { id } = req.params;
@@ -219,4 +217,62 @@ exports.adminLogout = (req, res) => {
   req.session.destroy(() => {
     res.redirect("/admin/login");
   });
+};
+
+
+exports.viewResults = async (req, res) => {
+  try {
+
+    // Fetch categories and their candidates with vote counts
+    const categories = await pool.query("SELECT * FROM categories");
+
+    const results = [];
+    for (const category of categories.rows) {
+      const candidates = await pool.query(
+        `SELECT c.id, c.name, c.photo_url,
+                COUNT(v.id) AS vote_count
+         FROM candidates c
+         LEFT JOIN votes v ON v.candidate_id = c.id
+         WHERE c.category_id = $1
+         GROUP BY c.id
+         ORDER BY vote_count DESC`,
+        [category.id]
+      );
+
+      results.push({
+        category: category.name,
+        candidates: candidates.rows,
+      });
+    }
+
+    res.render("admin/results", { results });
+  } catch (error) {
+    console.error("Error fetching results:", error);
+    res.status(500).send("Error loading results page");
+  }
+};
+
+
+// Get current setting
+exports.getSettings = async (req, res) => {
+  try {
+    const setting = await pool.query("SELECT * FROM settings LIMIT 1");
+    res.render("admin/settings", { setting: setting.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error loading settings");
+  }
+};
+
+// Toggle voting open/close
+exports.toggleVoting = async (req, res) => {
+  try {
+    const setting = await pool.query("SELECT * FROM settings LIMIT 1");
+    const current = setting.rows[0].voting_open;
+    await pool.query("UPDATE settings SET voting_open = $1", [!current]);
+    res.redirect("/admin/settings");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error toggling voting");
+  }
 };

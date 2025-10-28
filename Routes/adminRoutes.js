@@ -58,6 +58,10 @@ router.get("/dashboard", adminAuth, (req, res) => {
 router.get("/register-student", adminAuth, adminController.getRegisterStudentPage);
 router.post("/register-student", adminAuth, adminController.registerStudent);
 
+// Edit + Delete
+router.post("/edit-student/:id", adminAuth, adminController.editStudent);
+router.get("/delete-student/:id", adminAuth, adminController.deleteStudent);
+
 
 
 // 🟢 Category CRUD (protected)

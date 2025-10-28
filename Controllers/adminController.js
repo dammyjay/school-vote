@@ -72,6 +72,37 @@ exports.getRegisterStudentPage = async (req, res) => {
   }
 };
 
+
+// ✅ UPDATE
+exports.editStudent = async (req, res) => {
+  const { id } = req.params;
+  const { firstname, lastname } = req.body;
+
+  try {
+    await pool.query(
+      "UPDATE students SET firstname=$1, lastname=$2 WHERE id=$3",
+      [firstname, lastname, id]
+    );
+    res.redirect("/admin/register-student");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating student");
+  }
+};
+
+// ✅ DELETE
+exports.deleteStudent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query("DELETE FROM students WHERE id=$1", [id]);
+    res.redirect("/admin/register-student");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting student");
+  }
+};
+
 // 🟢 Create Category
 exports.createCategory = async (req, res) => {
   const { name } = req.body;

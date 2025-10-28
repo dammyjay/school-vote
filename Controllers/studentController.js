@@ -1,9 +1,28 @@
 const pool = require("../Models/db");
 
+// exports.login = async (req, res) => {
+//   const { firstname, lastname, voting_id } = req.body;
+//   const result = await pool.query(
+//     "SELECT * FROM students WHERE firstname=$1 AND lastname=$2 AND voting_id=$3",
+//     [firstname, lastname, voting_id]
+//   );
+
+//   if (result.rows.length > 0) {
+//     req.session.student = result.rows[0];
+//     res.redirect("/vote");
+//   } else {
+//     res.send("Invalid credentials");
+//   }
+// };
+
 exports.login = async (req, res) => {
   const { firstname, lastname, voting_id } = req.body;
+
   const result = await pool.query(
-    "SELECT * FROM students WHERE firstname=$1 AND lastname=$2 AND voting_id=$3",
+    `SELECT * FROM students 
+     WHERE LOWER(firstname) = LOWER($1) 
+       AND LOWER(lastname) = LOWER($2) 
+       AND voting_id = $3`,
     [firstname, lastname, voting_id]
   );
 
@@ -11,9 +30,17 @@ exports.login = async (req, res) => {
     req.session.student = result.rows[0];
     res.redirect("/vote");
   } else {
-    res.send("Invalid credentials");
+    // Show alert and go back to the login page
+    res.send(`
+      <script>
+        alert("Invalid credentials. Please check your name and voting ID.");
+        window.location.href = "/"; // redirect back to your login page
+      </script>
+    `);
   }
 };
+
+
 
 // Show voting results to students
 exports.viewResults = async (req, res) => {
@@ -38,6 +65,13 @@ exports.viewResults = async (req, res) => {
     res.render("student/results", { results });
   } catch (error) {
     console.error("Error loading student results:", error);
-    res.status(500).send("Error loading results");
+    // res.status(500).send("Error loading results");
+    // Show popup alert and redirect back
+    res.send(`
+      <script>
+        alert("An error occurred while loading the results. Please try again later.");
+        window.location.href = "/vote"; // or "/" depending on where you want to redirect
+      </script>
+    `);
   }
 };

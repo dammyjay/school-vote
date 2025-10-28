@@ -334,6 +334,7 @@ button:hover {
 
 .student-info h2 {
     margin-bottom: 10px;
+    color: #ffffff;
 }
 
 .voting-id {
@@ -349,7 +350,7 @@ button:hover {
 }
 
 .category-card h3 {
-    color: #005f73;
+    color: #c30b0b;
     margin-bottom: 20px;
 }
 
@@ -443,100 +444,8 @@ button:hover {
     background: #b32434;
 }
 
-
 /* ===== Responsive Design ===== */
-/* @media (max-width: 1024px) {
-    .dashboard-cards {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-
-    .modal-content {
-        width: 90%;
-    }
-
-    .header-bar h2 {
-        font-size: 18px;
-    }
-}
-
-@media (max-width: 768px) {
-    .admin-container {
-        width: 95%;
-    }
-
-    .card-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 20px;
-    }
-
-    .main-header nav a {
-        display: block;
-        margin: 8px 0;
-    }
-
-    .modal-content {
-        width: 90%;
-    }
-
-    .dashboard-container {
-        padding: 10px;
-    }
-
-    .btn-primary {
-        width: 100%;
-    }
-
-    .candidate-photo img {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-
-    h2 {
-        font-size: 18px;
-    }
-
-    .card {
-        padding: 10px;
-    }
-
-    .card img {
-        width: 80px;
-        height: 80px;
-    }
-
-    .modal-content {
-        padding: 15px;
-        width: 95%;
-    }
-
-    .header-bar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .btn-primary {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-
-    .vote-btn {
-        width: 100%;
-    }
-
-    .candidate-grid {
-        grid-template-columns: 1fr;
-    }
-} */
-
-
-/* ===== Responsive Design ===== */
-@media (max-width: 1024px) {
+@media screen and  (max-width: 1024px) {
     .dashboard-cards {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
@@ -559,7 +468,68 @@ button:hover {
     }
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+
+    .main-header nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .main-header nav a {
+        display: block;
+        margin: 8px 0;
+    }
+
+    .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    form {
+        width: 80%;
+        /* max-width: 400px; */
+    }
+
+    input,
+    button {
+        width: 80%;
+    }
+
+    .card-container {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 20px;
+    }
+
+    .dashboard-container {
+        padding: 10px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+
+    .candidate-photo img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* @media screen and (max-width: 480px) {
     body {
         padding: 15px;
     }
@@ -618,10 +588,10 @@ button:hover {
         overflow-x: auto;
         white-space: nowrap;
     }
-}
+} */
 
 /* ===== Mobile UI Refinements (for 480px and below) ===== */
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
     body {
         padding: 5px;
         background: #f9f9f9;

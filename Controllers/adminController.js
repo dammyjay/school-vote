@@ -209,7 +209,13 @@ exports.adminLogin = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.send("Error logging in");
+      // res.send("Error logging in");
+      res.send(`
+      <script>
+        alert("Invalid credentials. Please check your admin username and password.");
+        window.location.href = "/admin/login"; // redirect back to your login page
+      </script>
+    `);
   }
 };
 

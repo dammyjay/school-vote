@@ -112,7 +112,8 @@ button:hover {
 }
 
 .main-header {
-    background: #005f73;
+    /* background: #005f73; */
+    background: #000000;
     color: white;
     padding: 15px;
     border-radius: 10px;
@@ -134,6 +135,11 @@ button:hover {
 
 .main-header nav a:hover {
     text-decoration: underline;
+}
+.header-logo {
+    height: 80px;
+    vertical-align: middle;
+    margin-right: 10px;
 }
 
 /* --- Dashboard Styling --- */

@@ -9,5 +9,6 @@ router.get("/login", (req, res) => {
 
 // Login submission
 router.post("/login", studentController.login);
+router.get("/results", studentController.viewResults);
 
 module.exports = router;

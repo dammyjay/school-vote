@@ -124,12 +124,32 @@ exports.editCategory = async (req, res) => {
   res.redirect("/admin/create-category");
 };
 
-// 🔴 Delete Category
 exports.deleteCategory = async (req, res) => {
   const { id } = req.params;
-  await pool.query("DELETE FROM categories WHERE id=$1", [id]);
-  res.redirect("/admin/create-category");
+
+  try {
+    // 1️⃣ Delete votes linked to candidates in this category
+    await pool.query(
+      `
+      DELETE FROM votes
+      WHERE candidate_id IN (SELECT id FROM candidates WHERE category_id = $1)
+    `,
+      [id]
+    );
+
+    // 2️⃣ Delete candidates under this category
+    await pool.query("DELETE FROM candidates WHERE category_id=$1", [id]);
+
+    // 3️⃣ Delete the category
+    await pool.query("DELETE FROM categories WHERE id=$1", [id]);
+
+    res.redirect("/admin/create-category");
+  } catch (err) {
+    console.error("Error deleting category:", err);
+    res.status(500).send("Error deleting category");
+  }
 };
+
 
 exports.addCandidate = async (req, res) => {
   const { name, category_id } = req.body;
@@ -207,17 +227,33 @@ exports.editCandidate = async (req, res) => {
 };
 
 // 🔴 Delete Candidate
+// exports.deleteCandidate = async (req, res) => {
+//   const { id, category_id } = req.params;
+
+//   try {
+//     await pool.query("DELETE FROM candidates WHERE id=$1", [id]);
+//     res.redirect(`/admin/create-category/${category_id}/candidates`);
+//   } catch (err) {
+//     console.error(err);
+//     res.send("Error deleting candidate");
+//   }
+// };
+
 exports.deleteCandidate = async (req, res) => {
   const { id, category_id } = req.params;
 
   try {
+    await pool.query("DELETE FROM votes WHERE candidate_id=$1", [id]);
     await pool.query("DELETE FROM candidates WHERE id=$1", [id]);
     res.redirect(`/admin/create-category/${category_id}/candidates`);
   } catch (err) {
-    console.error(err);
-    res.send("Error deleting candidate");
+    console.error("Error deleting candidate:", err);
+    res.status(500).send("Error deleting candidate");
   }
 };
+
+
+
 
 // 🧩 Admin Login/Logout
 exports.adminLoginPage = (req, res) => {

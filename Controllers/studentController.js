@@ -1,9 +1,14 @@
 const pool = require("../Models/db");
 
+
 // exports.login = async (req, res) => {
 //   const { firstname, lastname, voting_id } = req.body;
+
 //   const result = await pool.query(
-//     "SELECT * FROM students WHERE firstname=$1 AND lastname=$2 AND voting_id=$3",
+//     `SELECT * FROM students 
+//      WHERE LOWER(firstname) = LOWER($1) 
+//        AND LOWER(lastname) = LOWER($2) 
+//        AND voting_id = $3`,
 //     [firstname, lastname, voting_id]
 //   );
 
@@ -11,17 +16,31 @@ const pool = require("../Models/db");
 //     req.session.student = result.rows[0];
 //     res.redirect("/vote");
 //   } else {
-//     res.send("Invalid credentials");
+//     // Show alert and go back to the login page
+//     res.send(`
+//       <script>
+//         alert("Invalid credentials. Please check your name and voting ID.");
+//         window.location.href = "/"; // redirect back to your login page
+//       </script>
+//     `);
 //   }
 // };
 
+
+
+// Show voting results to students
+
 exports.login = async (req, res) => {
-  const { firstname, lastname, voting_id } = req.body;
+  let { firstname, lastname, voting_id } = req.body;
+
+  // Clean the input
+  firstname = firstname.trim().replace(/\s+/g, " ");
+  lastname = lastname.trim().replace(/\s+/g, " ");
 
   const result = await pool.query(
     `SELECT * FROM students 
-     WHERE LOWER(firstname) = LOWER($1) 
-       AND LOWER(lastname) = LOWER($2) 
+     WHERE REPLACE(LOWER(firstname), ' ', '') = REPLACE(LOWER($1), ' ', '')
+       AND REPLACE(LOWER(lastname), ' ', '') = REPLACE(LOWER($2), ' ', '')
        AND voting_id = $3`,
     [firstname, lastname, voting_id]
   );
@@ -30,19 +49,15 @@ exports.login = async (req, res) => {
     req.session.student = result.rows[0];
     res.redirect("/vote");
   } else {
-    // Show alert and go back to the login page
     res.send(`
       <script>
         alert("Invalid credentials. Please check your name and voting ID.");
-        window.location.href = "/"; // redirect back to your login page
+        window.location.href = "/"; 
       </script>
     `);
   }
 };
 
-
-
-// Show voting results to students
 exports.viewResults = async (req, res) => {
   try {
     // Fetch all categories

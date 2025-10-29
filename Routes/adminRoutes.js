@@ -100,11 +100,18 @@ router.post(
   adminController.upload.single("photo"),
   adminController.editCandidate
 );
-router.get(
+// router.get(
+//   "/delete-candidate/:id/:category_id",
+//   adminAuth,
+//   adminController.deleteCandidate
+// );
+
+router.post(
   "/delete-candidate/:id/:category_id",
   adminAuth,
   adminController.deleteCandidate
 );
+
 
 // Results page route
 router.get("/results", adminController.viewResults);
